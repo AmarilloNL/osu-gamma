@@ -1,0 +1,134 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="GammaTool.MainWindow"
+        Title="Gamma" Icon="avares://GammaTool/icon.png"
+        SizeToContent="WidthAndHeight" CanResize="False" WindowStartupLocation="CenterScreen"
+        SystemDecorations="None" TransparencyLevelHint="Transparent" Background="Transparent"
+        FontFamily="Consolas, DejaVu Sans Mono, Liberation Mono, monospace">
+
+    <Window.Styles>
+        <Style Selector="Button.chip, RadioButton.chip">
+            <Setter Property="Foreground" Value="#7FDCFF"/>
+            <Setter Property="BorderBrush" Value="#12425F"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="0,10"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1" CornerRadius="2" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="Button.chip:pointerover, RadioButton.chip:pointerover">
+            <Setter Property="BorderBrush" Value="#00E5FF"/>
+            <Setter Property="Foreground" Value="#EAFFFF"/>
+        </Style>
+        <Style Selector="RadioButton.chip:checked">
+            <Setter Property="BorderBrush" Value="#00E5FF"/>
+            <Setter Property="Foreground" Value="#00E5FF"/>
+            <Setter Property="Background" Value="#1A00E5FF"/>
+        </Style>
+        <Style Selector="RadioButton.chip:checked /template/ Border#chrome">
+            <Setter Property="BoxShadow" Value="0 0 12 0 #9900E5FF"/>
+        </Style>
+        <Style Selector="Button.caption">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+        </Style>
+
+    </Window.Styles>
+
+    <Window.Resources>
+        <ControlTheme x:Key="TrackPiece" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Panel Background="Transparent">
+                        <Border Height="6" VerticalAlignment="Center" Background="{TemplateBinding Background}" BoxShadow="0 0 14 0 #00E5FF"/>
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
+        <ControlTheme x:Key="EmptyPiece" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <ControlTemplate><Panel Background="Transparent"/></ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
+        <!-- A ControlTheme, not a Style: Fluent sets the slider template in a nested :horizontal style that beats plain styles -->
+        <ControlTheme x:Key="NeonSlider" TargetType="Slider">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Height="30">
+                        <Border Height="6" Background="#0F1A26" VerticalAlignment="Center"/>
+                        <Track Name="PART_Track" Orientation="Horizontal"
+                               Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                               Value="{TemplateBinding Value, Mode=TwoWay}">
+                            <Track.DecreaseButton>
+                                <RepeatButton Name="PART_DecreaseButton" Theme="{StaticResource TrackPiece}">
+                                    <RepeatButton.Background>
+                                        <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                                            <GradientStop Color="#7C4DFF" Offset="0"/>
+                                            <GradientStop Color="#00E5FF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </RepeatButton.Background>
+                                </RepeatButton>
+                            </Track.DecreaseButton>
+                            <Track.IncreaseButton>
+                                <RepeatButton Name="PART_IncreaseButton" Theme="{StaticResource EmptyPiece}"/>
+                            </Track.IncreaseButton>
+                            <Thumb Cursor="Hand">
+                                <Thumb.Template>
+                                    <ControlTemplate>
+                                        <Border Width="12" Height="26" CornerRadius="3" Background="#00E5FF" BoxShadow="0 0 14 0 #00E5FF"/>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+    </Window.Resources>
+
+    <Border Margin="24" Width="420" Padding="26,18,26,26" CornerRadius="14"
+            Background="#07090F" BorderBrush="#12324A" BorderThickness="1"
+            BoxShadow="0 0 28 0 #4000E5FF" PointerPressed="OnDrag">
+        <StackPanel>
+            <DockPanel>
+                <Button Classes="chip caption" DockPanel.Dock="Right" Content="✕" Click="OnClose" ToolTip.Tip="Close (resets gamma)"/>
+                <Button Classes="chip caption" DockPanel.Dock="Right" Content="—" Click="OnMinimize" ToolTip.Tip="Minimize"/>
+                <TextBlock Text="// GAMMA" Foreground="#00E5FF" FontSize="13" VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <TextBlock Name="ValueText" Margin="0,18,0,14" FontSize="64" FontWeight="Bold" Foreground="#EAFFFF">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#00E5FF" BlurRadius="24" OffsetX="0" OffsetY="0" Opacity="0.9"/>
+                </TextBlock.Effect>
+            </TextBlock>
+
+            <Slider Name="GammaSlider" Theme="{StaticResource NeonSlider}" Minimum="0.5" Maximum="3" SmallChange="0.01" LargeChange="0.05"/>
+
+            <DockPanel Margin="0,4,0,18">
+                <TextBlock DockPanel.Dock="Right" Text="3,00" Foreground="#5A8AA3" FontSize="12"/>
+                <TextBlock Text="0,50" Foreground="#5A8AA3" FontSize="12"/>
+            </DockPanel>
+
+            <UniformGrid Name="Presets" Columns="5"/>
+
+            <DockPanel Margin="0,18,0,0">
+                <Button Classes="chip" DockPanel.Dock="Right" Padding="16,6" Content="RESET" Click="OnReset"/>
+                <TextBlock Name="Status" Foreground="#FF5C8A" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            </DockPanel>
+        </StackPanel>
+    </Border>
+</Window>

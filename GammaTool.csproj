@@ -10,7 +10,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>GammaTool</RootNamespace>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <DefaultItemExcludes>$(DefaultItemExcludes);.superpowers/**;dist/**;release/**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);.superpowers/**;dist/**;release/**;linux/**</DefaultItemExcludes>
   </PropertyGroup>
 
 </Project>
