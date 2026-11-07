@@ -22,7 +22,7 @@ static class Gamma
                 : "start wl-gammarelay-rs first, or log in with an x11 session";
         }
 
-        if (!Run("xrandr", "--listactivemonitors", out var monitors))
+        if (!Run("xrandr", "--current --listactivemonitors", out var monitors))
             return "xrandr not found. install it (x11-xserver-utils / xorg-xrandr)";
 
         // " 0: +*HDMI-1 1920/531x1080/299+0+0  HDMI-1" -> output name is the last field
@@ -31,7 +31,7 @@ static class Gamma
             var output = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
             if (output == null) continue;
             var g = Num(gamma);
-            if (!Run("xrandr", $"--output {output} --gamma {g}:{g}:{g}", out _))
+            if (!Run("xrandr", $"--current --output {output} --gamma {g}:{g}:{g}", out _))
                 return $"xrandr couldn't set gamma on {output}";
         }
         return null;

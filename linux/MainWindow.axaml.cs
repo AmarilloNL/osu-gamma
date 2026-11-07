@@ -33,6 +33,10 @@ public partial class MainWindow : Window
         GammaSlider.PropertyChanged += (_, e) => { if (e.Property == RangeBase.ValueProperty) Update(); };
         GammaSlider.Value = 1.0;
         Update();
+
+        // osu! and other games can reset gamma on launch / display-mode change; put ours back.
+        // Each apply spawns xrandr/busctl and there's no cheap read-back, so 1s rather than Windows' 250ms.
+        DispatcherTimer.Run(() => { if (_target != 1) Push(_target); return true; }, TimeSpan.FromSeconds(1));
     }
 
     void Update()
