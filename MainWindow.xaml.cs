@@ -25,6 +25,11 @@ public partial class MainWindow : Window
         GammaSlider.ValueChanged += (_, _) => Update();
         GammaSlider.Value = 1.0;
         Update();
+
+        // osu! (and other games) reset the gamma ramp on launch / display-mode change; put ours back.
+        var reapply = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        reapply.Tick += (_, _) => { double g = Math.Round(GammaSlider.Value, 2); if (g != 1.0) Gamma.Apply(g); };
+        reapply.Start();
     }
 
     void Update()

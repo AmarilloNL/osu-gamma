@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
@@ -11,10 +12,12 @@ static class Gamma
     [DllImport("gdi32.dll", CharSet = CharSet.Unicode)] static extern IntPtr CreateDC(string? driver, string device, string? output, IntPtr initData);
     [DllImport("gdi32.dll")] static extern bool DeleteDC(IntPtr hdc);
     [DllImport("gdi32.dll")] static extern bool SetDeviceGammaRamp(IntPtr hdc, ushort[] ramp);
+    [DllImport("gdi32.dll")] static extern bool GetDeviceGammaRamp(IntPtr hdc, ushort[] ramp);
 
     const string IcmKey = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\ICM";
 
     // Returns false if Windows rejected the ramp on any monitor (outside its allowed range).
+    // Skips monitors already at this ramp, so it's cheap to call repeatedly to undo resets by games.
     public static bool Apply(double gamma)
     {
         var ramp = new ushort[3 * 256];
@@ -22,10 +25,12 @@ static class Gamma
             ramp[i] = ramp[256 + i] = ramp[512 + i] = (ushort)Math.Round(Math.Pow(i / 255.0, 1 / gamma) * 65535);
 
         bool ok = true;
+        var current = new ushort[3 * 256];
         foreach (var screen in System.Windows.Forms.Screen.AllScreens)
         {
             var hdc = CreateDC(null, screen.DeviceName, null, IntPtr.Zero);
-            ok &= SetDeviceGammaRamp(hdc, ramp);
+            if (!GetDeviceGammaRamp(hdc, current) || !ramp.SequenceEqual(current))
+                ok &= SetDeviceGammaRamp(hdc, ramp);
             DeleteDC(hdc);
         }
         return ok;
